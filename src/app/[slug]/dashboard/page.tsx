@@ -70,9 +70,10 @@ export default function DashboardPage({
         client_name,
         services(name),
         barber_id
-      `)
+        `)
             .eq("business_id", business.id)
-            .eq("appointment_date", today);
+            .eq("appointment_date", today)
+            .neq("status", "CANCELADO");
             
             setAppointments(data || []);
         }
@@ -81,7 +82,11 @@ export default function DashboardPage({
             const confirmCancel = confirm("¿Cancelar turno?");
             if (!confirmCancel) return;
             
-            await supabase.from("appointments").delete().eq("id", id);
+            // CAMBIO ACÁ: Actualizamos el estado a 'CANCELADO'
+            await supabase
+                .from("appointments")
+                .update({ status: 'CANCELADO' })
+                .eq("id", id);
             
             loadData();
         }

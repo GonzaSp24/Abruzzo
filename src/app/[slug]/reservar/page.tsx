@@ -123,7 +123,7 @@ export default function ReservarPage({
             .eq("barber_id", selectedBarber.id)
             .eq("appointment_date", format(selectedDate, "yyyy-MM-dd"))
             // Para que si se cancela un turno, la hora se libere:
-            .neq("status", "'CANCELADO'"); 
+            .neq("status", "CANCELADO"); 
             
             setBookedTimes(data?.map((a) => a.appointment_time.slice(0, 5)) || []);
         }
