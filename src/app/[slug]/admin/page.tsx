@@ -49,7 +49,7 @@ export default function DashboardPage({
     }, [slug]);
 
     const updateStatus = async (id: string, newStatus: string) => {
-        const statusValue = `'${newStatus.toUpperCase()}'`; 
+        const statusValue = newStatus.toUpperCase();
         
         const { error } = await supabase
             .from("appointments")
