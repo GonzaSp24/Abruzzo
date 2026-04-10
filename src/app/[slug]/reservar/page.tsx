@@ -176,7 +176,8 @@ export default function ReservarPage({
             setLoading(false);
             
             if (error) {
-                alert("Error al reservar. Intentá de nuevo.");
+                console.error("ERROR DE SUPABASE:", error);
+                alert("Error de la base de datos: " + error.message); // <-- Esto te va a mostrar por qué falló
                 return;
             }
             setStep(4);
