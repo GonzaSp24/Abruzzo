@@ -37,8 +37,19 @@ const horariosBase = [
 ];
 
 // --- FUNCIÓN PARA FILTRAR HORAS PASADAS ---
-const obtenerHorariosDisponibles = (fechaSeleccionada: Date | undefined) => {
+// --- FUNCIÓN PARA FILTRAR HORAS PASADAS Y POR BARBERO ---
+const obtenerHorariosDisponibles = (fechaSeleccionada: Date | undefined, barberoSeleccionado: any) => {
     if (!fechaSeleccionada) return horariosBase;
+
+    let horariosParaMostrar = [...horariosBase];
+
+    // Si el barbero es Agustín, solo mostramos de las 17:00 en adelante
+    if (barberoSeleccionado?.id === "a23bb92e-17c4-479b-a1b2-016f809d5c84") {
+        horariosParaMostrar = horariosParaMostrar.filter(hora => {
+            const [horas] = hora.split(':').map(Number);
+            return horas >= 17;
+        });
+    }
 
     const ahora = new Date();
     
@@ -48,14 +59,14 @@ const obtenerHorariosDisponibles = (fechaSeleccionada: Date | undefined) => {
         fechaSeleccionada.getFullYear() === ahora.getFullYear();
 
     if (esHoy) {
-        return horariosBase.filter(hora => {
+        return horariosParaMostrar.filter(hora => {
             const [horas, minutos] = hora.split(':').map(Number);
             const horaDelTurno = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), horas, minutos);
             return horaDelTurno > ahora;
         });
     }
 
-    return horariosBase;
+    return horariosParaMostrar;
 };
 
 const steps = ["Barbero", "Servicio", "Fecha y Hora", "Tus Datos", "Confirmación"];
@@ -196,7 +207,7 @@ export default function ReservarPage({
     };
 
     // --- OBTENEMOS LAS HORAS DINÁMICAMENTE ---
-    const timeSlots = obtenerHorariosDisponibles(selectedDate);
+    const timeSlots = obtenerHorariosDisponibles(selectedDate, selectedBarber);
     
     if (!business) {
         return (

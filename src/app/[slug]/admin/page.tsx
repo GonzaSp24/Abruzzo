@@ -10,6 +10,19 @@ import { format } from "date-fns";
 import { Check, X, Loader2, History, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// --- FUNCIÓN PARA DARLE UN COLOR A CADA BARBERO ---
+const getColorBarbero = (nombreBarbero: string | undefined) => {
+    if (!nombreBarbero) return "text-gray-600 bg-gray-100";
+    
+    const nombre = nombreBarbero.toLowerCase();
+    // Podés agregar más barberos y colores acá si entran nuevos
+    if (nombre.includes("bruno")) return "text-blue-700 bg-blue-100";
+    if (nombre.includes("agustin") || nombre.includes("agustín")) return "text-purple-700 bg-purple-100";
+    
+    // Color por defecto para cualquier otro barbero
+    return "text-gray-700 bg-gray-200";
+};
+
 export default function DashboardPage({
     params,
 }: {
@@ -72,8 +85,9 @@ export default function DashboardPage({
     const turnosFuturos = appointments.filter(apt => apt.appointment_date >= hoyStr);
     const turnosPasados = appointments.filter(apt => apt.appointment_date < hoyStr);
     
-    // Lo que se muestra en la tabla depende del botón
-    const turnosAMostrar = verHistorial ? turnosPasados : turnosFuturos;
+    // --- CAMBIO ACÁ: OCULTAMOS LOS CANCELADOS DE LA VISTA ---
+    const turnosAMostrar = (verHistorial ? turnosPasados : turnosFuturos)
+        .filter(apt => cleanStatus(apt.status) !== "cancelado");
 
     // CONTADORES ARREGLADOS
     const stats = {
@@ -155,7 +169,15 @@ export default function DashboardPage({
                                                     <span className="text-xs text-gray-400">{apt.client_phone}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-4 text-gray-600">{apt.barbers?.name}</td>
+                                            {/* --- CAMBIO ACÁ: APLICAMOS EL COLOR AL NOMBRE DEL BARBERO --- */}
+                                            <td className="p-4">
+                                                <span className={cn(
+                                                    "px-2 py-1 rounded-md text-[11px] font-semibold",
+                                                    getColorBarbero(apt.barbers?.name)
+                                                )}>
+                                                    {apt.barbers?.name}
+                                                </span>
+                                            </td>
                                             <td className="p-4 text-gray-600">{apt.services?.name}</td>
                                             <td className="p-4">
                                                 <span className={cn(
