@@ -9,17 +9,16 @@ import StatCard from "@/app/components/admin/StatCard";
 import { format } from "date-fns";
 import { Check, X, Loader2, History, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/app/components/ui/input"; // <-- Agregamos el import de Input
 
 // --- FUNCIÓN PARA DARLE UN COLOR A CADA BARBERO ---
 const getColorBarbero = (nombreBarbero: string | undefined) => {
     if (!nombreBarbero) return "text-gray-600 bg-gray-100";
     
     const nombre = nombreBarbero.toLowerCase();
-    // Podés agregar más barberos y colores acá si entran nuevos
     if (nombre.includes("bruno")) return "text-blue-700 bg-blue-100";
     if (nombre.includes("agustin") || nombre.includes("agustín")) return "text-purple-700 bg-purple-100";
     
-    // Color por defecto para cualquier otro barbero
     return "text-gray-700 bg-gray-200";
 };
 
@@ -33,8 +32,9 @@ export default function DashboardPage({
     const [appointments, setAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     
-    // ESTADO: Para alternar entre historial y próximos
+    // ESTADOS
     const [verHistorial, setVerHistorial] = useState(false);
+    const [blockedDays, setBlockedDays] = useState<string[]>([]); // <-- Estado para días bloqueados
 
     const fetchDashboardData = async () => {
         const { data: biz } = await supabase
@@ -45,6 +45,8 @@ export default function DashboardPage({
 
         if (biz) {
             setBusiness(biz);
+            setBlockedDays(biz.blocked_days || []); // <-- Cargamos los días bloqueados de la BD
+            
             const { data: apts } = await supabase
                 .from("appointments")
                 .select(`*, barbers (name), services (name)`)
@@ -78,18 +80,35 @@ export default function DashboardPage({
         }
     };
 
+    // --- FUNCIÓN PARA BLOQUEAR/DESBLOQUEAR DÍAS ---
+    const toggleBlockedDay = async (date: string) => {
+        // 1. SALVAVIDAS: Si el negocio es null, cortamos la función acá para que no explote
+        if (!business || !business.id) return; 
+
+        let newDays = [...blockedDays];
+        if (newDays.includes(date)) {
+            newDays = newDays.filter(d => d !== date);
+        } else {
+            newDays.push(date);
+        }
+
+        const { error } = await supabase
+            .from("businesses")
+            .update({ blocked_days: newDays })
+            .eq("id", business.id); // Ahora estamos 100% seguros de que business.id existe
+
+        if (!error) setBlockedDays(newDays);
+    };
+
     const hoyStr = format(new Date(), "yyyy-MM-dd");
     const cleanStatus = (status: string) => status?.replace(/'/g, "").trim().toLowerCase() || "";
 
-    // SEPARAMOS LOS TURNOS
     const turnosFuturos = appointments.filter(apt => apt.appointment_date >= hoyStr);
     const turnosPasados = appointments.filter(apt => apt.appointment_date < hoyStr);
     
-    // --- CAMBIO ACÁ: OCULTAMOS LOS CANCELADOS DE LA VISTA ---
     const turnosAMostrar = (verHistorial ? turnosPasados : turnosFuturos)
         .filter(apt => cleanStatus(apt.status) !== "cancelado");
 
-    // CONTADORES ARREGLADOS
     const stats = {
         proximos: turnosFuturos.filter(a => cleanStatus(a.status) !== "cancelado").length,
         hoy: appointments.filter(a => a.appointment_date === hoyStr && cleanStatus(a.status) !== "cancelado").length,
@@ -111,6 +130,33 @@ export default function DashboardPage({
                 <StatCard title="Próximos Turnos" value={stats.proximos} />
                 <StatCard title="Turnos de Hoy" value={stats.hoy} />
                 <StatCard title="Pendientes" value={stats.pendientes} />
+            </div>
+
+            {/* --- SECCIÓN DE GESTIÓN DE DÍAS CERRADOS --- */}
+            <div className="bg-white p-6 border rounded-xl mb-8 shadow-sm">
+                <h3 className="font-semibold mb-2">Gestionar Días Cerrados (Feriados/Francos)</h3>
+                <p className="text-sm text-muted-foreground mb-4">Seleccioná los días que la barbería estará cerrada.</p>
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center mb-4">
+                    <Input 
+                        type="date" 
+                        className="w-full md:w-64"
+                        onChange={(e) => {
+                            if(e.target.value) {
+                                toggleBlockedDay(e.target.value);
+                                e.target.value = ''; // Limpiamos el input después de elegir
+                            }
+                        }}
+                    />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    {blockedDays.length === 0 && <span className="text-xs text-gray-400">No hay días bloqueados.</span>}
+                    {blockedDays.map(day => (
+                        <span key={day} className="bg-red-100 text-red-600 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 transition-all hover:bg-red-200">
+                            {format(new Date(`${day}T00:00:00`), "dd/MM/yyyy")}
+                            <X className="h-3 w-3 cursor-pointer" onClick={() => toggleBlockedDay(day)} />
+                        </span>
+                    ))}
+                </div>
             </div>
 
             <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
@@ -169,7 +215,6 @@ export default function DashboardPage({
                                                     <span className="text-xs text-gray-400">{apt.client_phone}</span>
                                                 </div>
                                             </td>
-                                            {/* --- CAMBIO ACÁ: APLICAMOS EL COLOR AL NOMBRE DEL BARBERO --- */}
                                             <td className="p-4">
                                                 <span className={cn(
                                                     "px-2 py-1 rounded-md text-[11px] font-semibold",

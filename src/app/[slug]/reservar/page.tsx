@@ -36,7 +36,6 @@ const horariosBase = [
     "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30"
 ];
 
-// --- FUNCIÓN PARA FILTRAR HORAS PASADAS ---
 // --- FUNCIÓN PARA FILTRAR HORAS PASADAS Y POR BARBERO ---
 const obtenerHorariosDisponibles = (fechaSeleccionada: Date | undefined, barberoSeleccionado: any) => {
     if (!fechaSeleccionada) return horariosBase;
@@ -102,17 +101,16 @@ export default function ReservarPage({
             .from("businesses")
             .select("*")
             .eq("slug", slug)
-            .single(); // Quitamos is_active de business, solo para barbers
+            .single(); 
             
             if (!businessData) return;
-            setBusiness(businessData);
+            setBusiness(businessData); // businessData ahora trae el blocked_days
             
-            // --- AQUÍ FILTRAMOS A LOS BARBEROS ACTIVOS ---
             const { data: barbersData } = await supabase
             .from("barbers")
             .select("*")
             .eq("business_id", businessData.id)
-            .eq("is_active", true); // Solo muestra a los activos
+            .eq("is_active", true); 
             setBarbers(barbersData || []);
             
             const { data: servicesData } = await supabase
@@ -133,7 +131,6 @@ export default function ReservarPage({
             .eq("business_id", business.id)
             .eq("barber_id", selectedBarber.id)
             .eq("appointment_date", format(selectedDate, "yyyy-MM-dd"))
-            // Para que si se cancela un turno, la hora se libere:
             .neq("status", "CANCELADO"); 
             
             setBookedTimes(data?.map((a) => a.appointment_time.slice(0, 5)) || []);
@@ -188,7 +185,7 @@ export default function ReservarPage({
             
             if (error) {
                 console.error("ERROR DE SUPABASE:", error);
-                alert("Error de la base de datos: " + error.message); // <-- Esto te va a mostrar por qué falló
+                alert("Error de la base de datos: " + error.message);
                 return;
             }
             setStep(4);
@@ -206,7 +203,7 @@ export default function ReservarPage({
         );
     };
 
-    // --- OBTENEMOS LAS HORAS DINÁMICAMENTE ---
+    // --- OBTENEMOS LAS HORAS DINÁMICAMENTE PASANDO EL BARBERO ---
     const timeSlots = obtenerHorariosDisponibles(selectedDate, selectedBarber);
     
     if (!business) {
@@ -342,6 +339,7 @@ export default function ReservarPage({
                                     <p className="text-muted-foreground mb-8">Seleccioná cuándo querés venir.</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="flex justify-center">
+                                        {/* --- CAMBIO ACÁ: COMPONENTE CALENDAR ACTUALIZADO --- */}
                                         <Calendar
                                             mode="single"
                                             selected={selectedDate}
@@ -355,11 +353,15 @@ export default function ReservarPage({
                                                 const hoy = new Date();
                                                 hoy.setHours(0, 0, 0, 0);
                                                 
-                                                const esPasado = date < hoy;
-                                                const esDomingo = date.getDay() === 0; // 0 es Domingo
-                                                const esLunes = date.getDay() === 1;   // 1 es Lunes <--- AGREGAMOS ESTO
+                                                const fechaString = format(date, "yyyy-MM-dd");
                                                 
-                                                return esPasado || esDomingo || esLunes;
+                                                const esPasado = date < hoy;
+                                                const esDomingo = date.getDay() === 0;
+                                                const esLunes = date.getDay() === 1;
+                                                
+                                                const esDiaBloqueado = business?.blocked_days?.includes(fechaString);
+                                                
+                                                return esPasado || esDomingo || esLunes || esDiaBloqueado;
                                             }}
                                             locale={es}
                                         />
