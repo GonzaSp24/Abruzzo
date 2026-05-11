@@ -1,6 +1,6 @@
 import { Phone } from "lucide-react";
 import { SiInstagram } from "react-icons/si";
-import Link from "next/link"; // ¡No te olvides de esta importación!
+import Link from "next/link";
 
 const Footer = () => {
     return (
@@ -52,8 +52,8 @@ const Footer = () => {
                     </div>
                 </div>
                 
-                {/* Copyright con link oculto al admin */}
-                <div className="mt-16 pt-8 border-t border-border text-center">
+                {/* Copyright con link oculto al admin y firma de TurnoBarber */}
+                <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-center items-center gap-2 text-center">
                     <p className="text-xs text-muted-foreground">
                         © {new Date().getFullYear()}{" "}
                         <Link 
@@ -63,6 +63,20 @@ const Footer = () => {
                             Abruzzo Barbería
                         </Link>
                         . Todos los derechos reservados.
+                    </p>
+                    
+                    <span className="hidden md:inline text-muted-foreground text-xs">|</span>
+                    
+                    <p className="text-xs text-muted-foreground">
+                        Desarrollado por{" "}
+                        <a 
+                            href="/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="font-semibold text-foreground hover:text-accent transition-colors"
+                        >
+                            TurnoBarber
+                        </a>
                     </p>
                 </div>
             </div>
