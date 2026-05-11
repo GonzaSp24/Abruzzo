@@ -42,12 +42,15 @@ const obtenerHorariosDisponibles = (fechaSeleccionada: Date | undefined, barbero
 
     let horariosParaMostrar = [...horariosBase];
 
-    // Si el barbero es Agustín, solo mostramos de las 17:00 en adelante
+    /// Si el barbero es Agustín
     if (barberoSeleccionado?.id === "a23bb92e-17c4-479b-a1b2-016f809d5c84") {
-        horariosParaMostrar = horariosParaMostrar.filter(hora => {
-            const [horas] = hora.split(':').map(Number);
-            return horas >= 17;
-        });
+        // Si hay fecha seleccionada y NO es sábado (6)
+        if (fechaSeleccionada && fechaSeleccionada.getDay() !== 6) {
+            horariosParaMostrar = horariosParaMostrar.filter(hora => {
+                const [horas] = hora.split(':').map(Number);
+                return horas >= 17;
+            });
+        }
     }
 
     const ahora = new Date();
@@ -367,9 +370,13 @@ export default function ReservarPage({
                                                 const esDomingo = date.getDay() === 0;
                                                 const esLunes = date.getDay() === 1;
                                                 
-                                                const esDiaBloqueado = business?.blocked_days?.includes(fechaString);
+                                                // Bloqueo del local completo (Feriados)
+                                                const esDiaBloqueadoNegocio = business?.blocked_days?.includes(fechaString);
                                                 
-                                                return esPasado || esDomingo || esLunes || esDiaBloqueado;
+                                                // --- NUEVO: Bloqueo específico del barbero (Viajes/Francos) ---
+                                                const esDiaBloqueadoBarbero = selectedBarber?.blocked_days?.includes(fechaString);
+                                                
+                                                return esPasado || esDomingo || esLunes || esDiaBloqueadoNegocio || esDiaBloqueadoBarbero;
                                             }}
                                             locale={es}
                                         />

@@ -10,6 +10,7 @@ export default function AdminTabs() {
         { name: "Dashboard", href: `/${slug}/admin` },
         { name: "Barberos", href: `/${slug}/admin/barberos` },
         { name: "Servicios", href: `/${slug}/admin/servicios` },
+        { name: "Ausencias", href: `/${slug}/admin/ausencias` }
     ];
 
     return (
