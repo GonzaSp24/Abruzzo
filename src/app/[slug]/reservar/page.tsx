@@ -307,6 +307,7 @@ export default function ReservarPage({
                                         Elegí el servicio
                                     </h2>
                                     <p className="text-muted-foreground mb-8">¿Qué te gustaría hacerte?</p>
+                                    
                                     <div className="space-y-4">
                                         {services.map((s) => (
                                             <button
@@ -326,6 +327,13 @@ export default function ReservarPage({
                                                 <span className="text-xl font-light">${s.price?.toLocaleString()}</span>
                                             </button>
                                         ))}
+                                    </div>
+
+                                    {/* --- NUEVO MENSAJE DE SERVICIOS INCLUIDOS --- */}
+                                    <div className="mt-6 p-4 bg-gray-50 border border-gray-100 rounded-lg text-center">
+                                        <p className="text-sm text-gray-600">
+                                            💡 <strong>Lavado y perfilado de cejas</strong> están incluidos en todos los servicios. ¡Pedíselo a tu barbero!
+                                        </p>
                                     </div>
                                 </div>
                             )}
