@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Calendar } from "@/app/components/ui/calendar";
-import { ArrowLeft, ArrowRight, Check, User, MessageCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, User, MessageCircle, Loader2, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -459,39 +459,60 @@ export default function ReservarPage({
                             
                             {/* PASO 5 — Confirmación */}
                             {step === 4 && (
-                                <div className="text-center">
-                                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-accent/10 flex items-center justify-center">
-                                        <Check className="h-8 w-8 text-accent" />
+                            <div className="text-center">
+                                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-accent/10 flex items-center justify-center">
+                                    <Check className="h-8 w-8 text-accent" />
+                                </div>
+
+                                <h2 className="text-3xl font-semibold mb-2" style={{ fontFamily: "var(--font-serif)" }}>
+                                    ¡Turno reservado!
+                                </h2>
+
+                                <p className="text-muted-foreground mb-8">
+                                    Revisá el resumen de tu turno.
+                                </p>
+
+                                <div className="max-w-sm mx-auto border border-border p-8 mb-8 text-left space-y-4">
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                                            Barbero
+                                        </p>
+                                        <p className="font-medium">{selectedBarber?.name}</p>
                                     </div>
-                                    <h2 className="text-3xl font-semibold mb-2" style={{ fontFamily: "var(--font-serif)" }}>
-                                        ¡Turno reservado!
-                                    </h2>
-                                    <p className="text-muted-foreground mb-8">Revisá el resumen de tu turno.</p>
-                                    
-                                    <div className="max-w-sm mx-auto border border-border p-8 mb-8 text-left space-y-4">
-                                        <div>
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Barbero</p>
-                                            <p className="font-medium">{selectedBarber?.name}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Servicio</p>
-                                            <p className="font-medium">
-                                                {selectedService?.name} — ${selectedService?.price?.toLocaleString()}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Fecha y hora</p>
-                                            <p className="font-medium">
-                                                {selectedDate && format(selectedDate, "EEEE d 'de' MMMM", { locale: es })} a las {selectedTime}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Cliente</p>
-                                            <p className="font-medium">{clientName}</p>
-                                        </div>
+
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                                            Servicio
+                                        </p>
+                                        <p className="font-medium">
+                                            {selectedService?.name} — $
+                                            {selectedService?.price?.toLocaleString()}
+                                        </p>
                                     </div>
-                                    
-                                    <a 
+
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                                            Fecha y hora
+                                        </p>
+                                        <p className="font-medium">
+                                            {selectedDate &&
+                                                format(selectedDate, "EEEE d 'de' MMMM", {
+                                                    locale: es,
+                                                })}{" "}
+                                            a las {selectedTime}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                                            Cliente
+                                        </p>
+                                        <p className="font-medium">{clientName}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col items-center gap-4">
+                                    <a
                                         href={`https://wa.me/${business.whatsapp_number}?text=${whatsappMessage()}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
@@ -502,8 +523,34 @@ export default function ReservarPage({
                                             Confirmar por WhatsApp
                                         </Button>
                                     </a>
+
+                                    <a
+                                    href="https://maps.app.goo.gl/Yzti5VcpRonL4aj28?g_st=ic"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full max-w-sm border border-yellow-500/30 bg-yellow-500/5 hover:bg-yellow-500/10 transition-all duration-300 p-5 flex items-center justify-between group"
+                                >
+                                    <div className="text-left">
+                                        <p className="text-xs uppercase tracking-[0.2em] text-yellow-700 font-medium mb-1">
+                                            Google Maps
+                                        </p>
+
+                                        <h3 className="text-base font-semibold">
+                                            Dejanos tu reseña ⭐
+                                        </h3>
+
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            Tu opinión ayuda muchísimo a la barbería.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex text-yellow-500 text-xl group-hover:scale-110 transition-transform">
+                                        ⭐⭐⭐⭐⭐
+                                    </div>
+                                </a>
                                 </div>
-                            )}
+                            </div>
+                        )}
                         </motion.div>
                     </AnimatePresence>
                     
@@ -516,6 +563,7 @@ export default function ReservarPage({
                                 disabled={step === 0}
                                 className="rounded-none text-xs tracking-[0.1em] uppercase gap-2"
                             >
+                                
                                 <ArrowLeft className="h-4 w-4" /> Anterior
                             </Button>
                             <Button
