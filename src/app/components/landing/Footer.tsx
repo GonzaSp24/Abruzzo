@@ -2,14 +2,21 @@ import { Phone } from "lucide-react";
 import { SiInstagram } from "react-icons/si";
 import Link from "next/link";
 
-const Footer = () => {
+// 1. Le avisamos a TypeScript que vamos a recibir el objeto business
+interface FooterProps {
+    business?: any;
+}
+
+const Footer = ({ business }: FooterProps) => {
     return (
         <footer className="py-16 px-6 border-t border-border">
             <div className="max-w-5xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
                     {/* Brand */}
                     <div>
-                        <h3 className="text-3xl font-semibold text-foreground mb-2">Abruzzo</h3>
+                        <h3 className="text-3xl font-semibold text-foreground mb-2">
+                            {business?.name || "Barbería"}
+                        </h3>
                         <p className="text-sm text-muted-foreground">Barbería</p>
                     </div>
                     
@@ -19,8 +26,9 @@ const Footer = () => {
                             Contacto
                         </p>
                         <div className="space-y-3">
+                            {/* WhatsApp dinámico leyendo de la BD */}
                             <a
-                                href="https://wa.me/543584877740"
+                                href={`https://wa.me/${business?.whatsapp_number || '543584877740'}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors"
@@ -28,14 +36,15 @@ const Footer = () => {
                                 <Phone className="h-4 w-4" />
                                 WhatsApp
                             </a>
+                            {/* Instagram preparado para ser dinámico */}
                             <a
-                                href="https://instagram.com/abruzzo.barberia"
+                                href={`https://instagram.com/${business?.instagram_handle || 'abruzzo.barberia'}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors"
                             >
                                 <SiInstagram className="h-4 w-4" />
-                                @abruzzo.barberia
+                                @{business?.instagram_handle || 'abruzzo.barberia'}
                             </a>
                         </div>
                     </div>
@@ -45,22 +54,21 @@ const Footer = () => {
                         <p className="text-sm tracking-[0.2em] uppercase text-muted-foreground mb-4">
                             Dirección
                         </p>
-                        <p className="text-sm text-foreground leading-relaxed">
-                            Gaudard 478<br />
-                            Rio Cuarto, Cordoba, Argentina
+                        <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                            {business?.address || "Gaudard 478\nRio Cuarto, Cordoba, Argentina"}
                         </p>
                     </div>
                 </div>
                 
-                {/* Copyright con link oculto al admin y firma de TurnoBarber */}
+                {/* Copyright con link oculto al admin dinámico y firma de TurnoBarber */}
                 <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-center items-center gap-2 text-center">
                     <p className="text-xs text-muted-foreground">
                         © {new Date().getFullYear()}{" "}
                         <Link 
-                            href="/abruzzo/admin" 
+                            href={`/${business?.slug || 'abruzzo'}/admin`} 
                             className="cursor-text hover:text-foreground transition-colors"
                         >
-                            Abruzzo Barbería
+                            {business?.name || "Abruzzo Barbería"}
                         </Link>
                         . Todos los derechos reservados.
                     </p>

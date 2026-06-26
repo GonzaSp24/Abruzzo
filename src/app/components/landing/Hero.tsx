@@ -3,11 +3,10 @@ import { Button } from "@/app/components/ui/button";
 
 interface HeroProps {
     onReservar: () => void;
-    businessName: string;
-  }
+    business?: any; // <-- Actualizamos esto
+}
   
-
-const Hero = ({ onReservar }: HeroProps) => {
+const Hero = ({ onReservar, business }: HeroProps) => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background */}
@@ -29,7 +28,7 @@ const Hero = ({ onReservar }: HeroProps) => {
             Barbería
           </p>
           <h1 className="text-7xl md:text-9xl font-semibold tracking-tight text-foreground mb-6">
-            Abruzzo
+            {business?.name || "Abruzzo"} {/* <-- Nombre dinámico */}
           </h1>
           <div className="w-16 h-px bg-accent mx-auto mb-8" />
           <p className="text-lg md:text-xl text-muted-foreground font-light max-w-md mx-auto mb-12 leading-relaxed">
@@ -45,12 +44,13 @@ const Hero = ({ onReservar }: HeroProps) => {
           <Button
             onClick={onReservar}
             size="lg"
-            className="bg-foreground text-background hover:bg-foreground/90 text-sm tracking-[0.15em] uppercase px-12 py-6 rounded-none"
+            className="text-white hover:opacity-90 text-sm tracking-[0.15em] uppercase px-12 py-6 rounded-none border-0"
+            style={{ backgroundColor: business?.primary_color || '#111827' }} // <-- Color dinámico
           >
             Reservar Turno
           </Button>
         </motion.div>
-              </div>
+      </div>
 
       {/* Scroll indicator */}
       <motion.div

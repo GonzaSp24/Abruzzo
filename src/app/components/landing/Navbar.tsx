@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface NavbarProps {
     onReservar: () => void;
+    business?: any; // <-- Le avisamos a TypeScript que puede recibir esto
 }
 
 function scrollToSection(id: string) {
@@ -15,7 +16,7 @@ function scrollToSection(id: string) {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-const Navbar = ({ onReservar }: NavbarProps) => {
+const Navbar = ({ onReservar, business }: NavbarProps) => { // <-- Lo recibimos acá
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     
@@ -25,11 +26,10 @@ const Navbar = ({ onReservar }: NavbarProps) => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
     
-    // Función para el smooth scroll hacia arriba
     const scrollToTop = (e: React.MouseEvent) => {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });
-        setMenuOpen(false); // Por si tocan el logo teniendo el menú móvil abierto
+        setMenuOpen(false);
     };
     
     return (
@@ -41,15 +41,24 @@ const Navbar = ({ onReservar }: NavbarProps) => {
         >
             <div className="max-w-6xl mx-auto flex items-center justify-between">
                 
-                {/* Logo con el scroll suave hacia arriba */}
-                <a 
-                    href="#" 
-                    onClick={scrollToTop}
-                    className="text-2xl font-semibold text-foreground tracking-tight cursor-pointer" 
-                    style={{ fontFamily: "Cormorant Garamond, serif" }}
-                >
-                    Abruzzo
-                </a>
+                {/* Logo dinámico o Nombre de la base de datos */}
+                {business?.logo_url ? (
+                    <img 
+                        src={business.logo_url} 
+                        alt={`Logo de ${business.name}`} 
+                        className="h-16 w-16 object-contain cursor-pointer" // <-- Cambié h-10 por h-16 w-16
+                        onClick={scrollToTop}
+                    />
+                ) : (
+                    <a 
+                        href="#" 
+                        onClick={scrollToTop}
+                        className="text-2xl font-semibold text-foreground tracking-tight cursor-pointer" 
+                        style={{ fontFamily: "Cormorant Garamond, serif" }}
+                    >
+                        {business?.name || "Barbería"}
+                    </a>
+                )}
                 
                 {/* Desktop nav */}
                 <div className="hidden md:flex items-center gap-8">
@@ -69,6 +78,7 @@ const Navbar = ({ onReservar }: NavbarProps) => {
                         onClick={onReservar}
                         variant="outline"
                         className="rounded-none text-xs tracking-[0.15em] uppercase border-foreground text-foreground hover:bg-foreground hover:text-background"
+                        style={{ borderColor: business?.primary_color, color: business?.primary_color }} // <-- Detallecito de color opcional
                     >
                         Reservar
                     </Button>

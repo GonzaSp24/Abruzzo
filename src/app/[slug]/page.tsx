@@ -48,7 +48,6 @@ export default function BusinessPage({
             .select("*")
             .eq("business_id", businessData.id);
         
-        // ACÁ ESTÁ EL CAMBIO: Filtramos solo los barberos activos
         const { data: barbersData } = await supabase
             .from("barbers")
             .select("*")
@@ -60,27 +59,31 @@ export default function BusinessPage({
         setLoading(false);
     }
     
-    if (loading) return <div className="p-10">Cargando...</div>;
+    if (loading) return <div className="p-10 flex justify-center items-center h-screen">Cargando...</div>;
     if (!business) return <div className="p-10">Negocio no encontrado</div>;
     
     return (
         <main className="bg-background text-foreground">
-            <Navbar onReservar={() => router.push(`/${slug}/reservar`)} />
+            {/* 1. Le pasamos 'business' como prop a los componentes */}
+            <Navbar onReservar={() => router.push(`/${slug}/reservar`)} business={business} />
             
             <Hero
                 onReservar={() => router.push(`/${slug}/reservar`)}
-                businessName={business.name}
+                business={business}
             />
             
             <Services services={services} />
             
             <Team barbers={barbers} />
             
-            <Footer />
+            {/* También se lo podés pasar al Footer si querés usar el logo ahí abajo */}
+            <Footer business={business} />
             
+            {/* 2. Acá aplicamos el inline style para el color de fondo dinámico */}
             <button
                 onClick={() => router.push(`/${slug}/reservar`)}
-                className="fixed bottom-6 right-6 bg-black text-white px-6 py-3 rounded-full shadow-lg hover:scale-105 transition z-50"
+                className="fixed bottom-6 right-6 text-white px-6 py-3 rounded-full shadow-lg hover:scale-105 transition z-50 font-medium"
+                style={{ backgroundColor: business.primary_color || '#111827' }}
             >
                 Reservar
             </button>
