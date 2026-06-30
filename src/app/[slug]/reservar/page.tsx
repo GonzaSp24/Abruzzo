@@ -41,11 +41,20 @@ const obtenerHorariosDisponibles = (fechaSeleccionada: Date | undefined, barbero
     if (!fechaSeleccionada) return horariosBase;
 
     let horariosParaMostrar = [...horariosBase];
-
+    // --- sacar despues del viernes ---
+    const fechaString = format(fechaSeleccionada, 'yyyy-MM-dd');
+    if (fechaString === '2026-07-03') {
+        horariosParaMostrar = [
+            // Mañana normal
+            "10:00", "10:30", "11:00", "11:30", "12:00", "12:30",
+            // Tarde especial por el partido
+            "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
+        ];  
+    }
     /// Si el barbero es Agustín
     if (barberoSeleccionado?.id === "a23bb92e-17c4-479b-a1b2-016f809d5c84") {
         // Si hay fecha seleccionada y NO es sábado (6)
-        if (fechaSeleccionada && fechaSeleccionada.getDay() !== 6) {
+        if (fechaSeleccionada && fechaSeleccionada.getDay() !== 6 && fechaString !== '2026-07-03') {
             horariosParaMostrar = horariosParaMostrar.filter(hora => {
                 const [horas] = hora.split(':').map(Number);
                 return horas >= 17;
