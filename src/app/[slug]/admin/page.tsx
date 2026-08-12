@@ -44,10 +44,16 @@ export default function DashboardPage({
         if (biz) {
             setBusiness(biz);
             
+            // Calculamos la fecha de hace 30 días para no traer turnos prehistóricos
+            const fechaLimite = new Date();
+            fechaLimite.setDate(fechaLimite.getDate() - 30);
+            const limiteStr = fechaLimite.toISOString().split('T')[0];
+            
             const { data: apts } = await supabase
                 .from("appointments")
                 .select(`*, barbers (name), services (name)`)
                 .eq("business_id", biz.id)
+                .gte("appointment_date", limiteStr) // <--- ESTE FILTRO SALVA EL LÍMITE DE 1000
                 .order("appointment_date", { ascending: true })
                 .order("appointment_time", { ascending: true });
 
